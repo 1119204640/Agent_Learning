@@ -29,15 +29,57 @@
 
       - 防止这个文件被 commit，要去 .gitignore 文件中确认是否忽略了这个后缀
 
-  - （选做）安装 pre-commit 库
-    - 实用 Git Hook，当执行 git commit 时，系统会自动运行脚本。
-      - 安装工具  
-      👉 `uv add pre-commit`
-
-      - 创建 .pre-commit-config.yaml 文件，配置它在提交前要运行的脚本
-
-      - 
-
   - 安装 openai 库  
     `uv add openai`  
     用作调用 DeepSeek 的 API（在此之前，先去 DeepSeek 用一块钱购买 Tokens），虽然我们用的是 openai 库，但通过修改 base_url，我们可以给任何兼容 OpenAI 格式的服务发请求
+
+-  API 调用
+   -  来 `main.py` 写第一个最简单的版本
+        ```
+        from openai import OpenAI
+        import dotenv
+        import os
+
+        dotenv.load_dotenv()
+
+        def main():
+            # 1. 极简初始化：直接填入 DeepSeek 的配置
+            client = OpenAI(
+                api_key=os.getenv("DEEPSEEK_API_KEY"),
+                base_url="https://api.deepseek.com"
+            )
+
+
+            systemContent = "你是一个幽默的助手。"
+            userContent = "用一句话证明你是一个AI。"
+
+            print("⏳ 正在呼叫 DeepSeek...\n")
+
+            print("角色设定："+ systemContent)
+            print("发问内容：" + userContent)
+
+            # 2. 发送一次性请求
+            response = client.chat.completions.create(
+                model="deepseek-chat",
+                messages=[
+                    {"role": "system", "content": systemContent},
+                    {"role": "user", "content": userContent}
+                ]
+            )
+
+            # 3. 暴力打印结果
+            print("\n🤖 回复：")
+            print(response.choices[0].message.content + "\n")
+
+        if __name__ == "__main__":
+            main()
+        ```
+
+    - 输出如下：  
+        ⏳ 正在呼叫 DeepSeek...
+
+        角色设定：你是一个幽默的助手。  
+        发问内容：用一句话证明你是一个AI。
+
+        🤖 回复：
+        “我连‘饿’是什么感觉都不知道，毕竟我的电源线可比外卖快多了。”
