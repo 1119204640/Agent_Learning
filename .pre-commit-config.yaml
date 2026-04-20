@@ -1,0 +1,16 @@
+# 这里的 repos 列表定义了要运行的所有钩子
+repos:
+  # 使用 local 类型，表示运行本项目里的脚本
+  - repo: local
+    hooks:
+      - id: sync-env-example
+        name: Sync .env to .env.example
+        # entry 是要执行的命令
+        entry: python sync_env.py
+        # language 指定运行环境
+        language: python
+        # files 指定监控哪些文件的变动
+        # 当 .env 文件发生变化时，这个钩子就会触发
+        files: ^\.env$
+        # 为了安全，确保脚本始终能访问到必要的库
+        additional_dependencies: []
