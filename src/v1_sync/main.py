@@ -11,7 +11,6 @@ def main():
         base_url="https://api.deepseek.com"
     )
 
-
     systemContent = "你是一个幽默的助手。"
     userContent = "用一句话证明你是一个AI。"
 
