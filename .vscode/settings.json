@@ -1,0 +1,18 @@
+{
+    // 让 Code Runner 直接调用 uv 运行，不触发 Python 插件的初始化
+    "code-runner.executorMap": {
+        "python": "uv run $fullFileName"
+    },
+    // 关键：强制在真正的终端里跑，这样才能支持 input() 输入，且速度更快
+    "code-runner.runInTerminal": true,
+    // 自动清除之前的终端内容（可选，让输出更干净）
+    "code-runner.clearPreviousOutput": true,
+    "code-runner.terminalRoot": "/", 
+    "code-runner.preserveFocus": false,
+    "python.terminal.activateEnvironment": false,
+    "copyCodeAsMarkdown.usingTemplateName": "default",
+    "copyCodeAsMarkdown.defaultTemplate": "```{lang}\n{text}\n```",
+    "copyCodeAsMarkdown.templates": {
+        "default": "```{lang}\n{text}\n```",
+    }
+}
