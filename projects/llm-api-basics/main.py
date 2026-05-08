@@ -36,6 +36,7 @@ def main():
         print("             2. 一次普通问答 + 模型完整对象打印")
         print("             3. 一次普通问答 + Usage 统计")
         print("             4. 一次“有温度“的问答（改变 temperature 参数）")
+        print("             5. 要求 LLM 以 JSON 模式返回 ")
         print("             0. 退出")
 
         def tmp_ask(temp=None, cb=None):

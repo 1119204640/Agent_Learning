@@ -1,171 +1,179 @@
-# 从游戏开发自学转 Agent 工程师
+# 从游戏开发自学转 AI Agent 工程师
 
-*环境：macOS 26、VS code*
+> 每个阶段一个独立项目，学完一个再开下一个 · macOS + VS Code
 
-## 🛠️ 项目进度
+## 学习路线
 
-### 子项目1：大模型 API 调用
-- [x] 简单接入 DeepSeek API
-- [x] 实现模型完整对象打印与 Usage 统计
-- [x] 完成 Temperature (0 vs 1.3) 对比
-- [ ] 增加 `client.py`，优化封装逻辑
-- [ ] 重构为异步调用
-- [ ] 实现流式打字机效果
-- [ ] 增加上下文支持，管理记忆
-- [ ] 实现 GUI 界面
-- [ ] **终极目标：实现一个 markdown 转小红书图文的 app**
+### 基础阶段：LLM + Web 框架
 
-## Day 1
+| # | 项目 | 状态 | 关键词 |
+|---|------|------|--------|
+| 1 | [LLM API 入门](./projects/llm-api-basics/) | 🚧 进行中 | DeepSeek, OpenAI SDK, Temperature, Token |
+| 2 | [FastAPI 基础](./projects/fastapi-basics/) | ✅ 完成 | 路由, Pydantic 校验, Swagger 文档 |
+| 3 | [Apple Notes 排版 Agent](./projects/apple-notes-agent/) | ✅ 完成 | FastAPI + LLM 实战, Docker 部署, Prompt 工程 |
 
-### Python 环境部署和优化
+### 进阶阶段：Agent 核心能力
 
-#### Python 安装
-我本来已经安装好了，安装也很简单，这里不展开。也可等后面 uv 工具安装好之后再来安装 Python
-
-#### macOS 下 Python 包管理极其混乱问题
-- 路径地狱：电脑里同时存在系统 Python、pyenv 版本和 venv 环境。明明激活了环境，但 which pip 偶尔还是会指向别处，导致“库装在 A 处，程序去 B 处找”，引发 ModuleNotFoundError。
-
-- 证书高墙 (SSL Error)： Mac + pyenv 环境极其“死板”，不带根证书，导致 Python 无法访问 HTTPS 网站。安装库时频繁被 CERTIFICATE_VERIFY_FAILED 拦截。
-
-- 繁琐的仪式感：每次开新项目都要经历 mkdir -> venv -> source -> pip install -> pip install certifi 等一系列“规定动作”，不仅累，还容易忘。
-
-#### 安装 uv 包与环境管理工具可以解决上述问题
-- 安装 uv  
-👉 `brew install uv`  
-  
-- 使用 uv 选一个你想存放项目的位置新建项目，并进行项目初始化，会自动帮你创建必须的工程文件  
-👉 `uv init my_project`  
-  
-  - <u>后续全部直接用 uv 工具下载第三方库，详见[ uv 菜鸟教程 ](https://www.runoob.com/python3/uv-tutorial.html)</u>
-
-- 安装 python-dotenv 库  
-👉 `uv add python-dotenv`  
-  - 用作管理环境变量，避免大模型的 api_key 被泄露  
-  - 创建一个 .env 文件，声明一个环境变量（命名随意）  
-  - 防止这个文件被 commit，要去 .gitignore 文件中确认是否忽略了这个后缀
-
-- 安装 openai 库  
-👉 `uv add openai`  
-  - 用作调用 DeepSeek 的 API（在此之前，先去 DeepSeek 用一块钱购买 Tokens），虽然我们用的是 openai 库，但通过修改 base_url，我们可以给任何兼容 OpenAI 格式的服务发请求
-
-### **API 调用**
-   #### 来 `main.py` 写第一个最简单的版本：接入 DeepSeek API
-   ```python
-   from openai import OpenAI
-  import dotenv
-  import os
-
-  dotenv.load_dotenv()
-
-  def main():
-      # 1. 极简初始化：直接填入 DeepSeek 的配置
-      client = OpenAI(
-          api_key=os.getenv("DEEPSEEK_API_KEY"),
-          base_url="https://api.deepseek.com"
-      )
-
-      systemContent = "你是一个幽默的助手。"
-      userContent = "用一句话证明你是一个AI。"
-
-      print("⏳ 正在呼叫 DeepSeek...\n")
-
-      print("角色设定："+ systemContent)
-      print("发问内容：" + userContent)
-
-      # 2. 发送一次性请求
-      response = client.chat.completions.create(
-          model="deepseek-chat",
-          messages=[
-              {"role": "system", "content": systemContent},
-              {"role": "user", "content": userContent}
-          ]
-      )
-
-      # 3. 暴力打印结果
-      print("\n🤖 回复：")
-      print(response.choices[0].message.content + "\n")
-
-  if __name__ == "__main__":
-      main()
-   ```
-
-- 输出如下：  
-```
-  ⏳ 正在呼叫 DeepSeek...
-
-  角色设定：你是一个幽默的助手。  
-  发问内容：用一句话证明你是一个AI。
-
-  🤖 回复：
-  “我连‘饿’是什么感觉都不知道，毕竟我的电源线可比外卖快多了。”
-```
-      
-## Day 2
-
-### 模型完整对象打印与 Usage 统计
-
-#### 核心 API
-```python
-# 获取回复内容
-content = response.choices[0].message.content
-
-# 获取总消耗 Token
-total_usage = response.usage.total_tokens
-
-# 获取命中的缓存 Token (DeepSeek 特色省钱点)
-cache_hit = response.usage.prompt_cache_hit_tokens
-
-# 当你执行 print(response) 时，你会看到一个类似 ChatCompletion(id='...', ...) 的对象。这是因为 openai 库为了方便开发者，把原始 JSON 封装成了 Python 对象。
-# 使用 model_dump_json() 可以看到类似网页端的 JSON 源码
-# 传入 indent=2 参数可以让 JSON 按照关键字换行和以2个字符作为缩进
-print(response.model_dump_json(indent=2))
-```
-
-#### DeepSeek API 响应参数解析表
-
-| 字段名 | 类型 | 含义说明 | 开发者关注度 |
-| :--- | :--- | :--- | :--- |
-| **`id`** | String | 此次对话的唯一标识符 | 🌕🌑🌑 |
-| **`choices`** | List | 回答列表（通常包含一个对象） | 🌕🌕🌕 |
-| └ **`message.content`** | String | **AI 回答的具体文字内容** | 🌕🌕🌕 |
-| └ **`finish_reason`** | String | 停止原因（`stop` 为正常结束，`length` 为长度溢出） | 🌕🌕🌑 |
-| **`usage`** | Object | 资源消耗统计（账单详情） | 🌕🌕🌕 |
-| └ **`prompt_tokens`** | Int | 用户输入的 Token 数量 | 🌕🌕🌑 |
-| └ **`completion_tokens`** | Int | AI 输出的 Token 数量 | 🌕🌕🌑 |
-| └ **`total_tokens`** | Int | **总共消耗的 Token 数量** | 🌕🌕🌕 |
-| └ **`prompt_cache_hit_tokens`** | Int | **命中上下文缓存的 Token 数 (省钱项)** | 🌕🌕🌕 |
-| └ **`prompt_cache_miss_tokens`** | Int | 未命中缓存、需要重新计算的 Token 数 | 🌕🌕🌑 |
-| **`created`** | Timestamp | 回应生成的 Unix 时间戳 | 🌕🌑🌑 |
-| **`model`** | String | 使用的模型名称 (如 `deepseek-chat`) | 🌕🌑🌑 |
-| **`system_fingerprint`** | String | 系统指纹 (模型服务器集群的版本标识) | 🌕🌑🌑 |
+| # | 项目 | 状态 | 关键词 |
+|---|------|------|--------|
+| 4 | Function Calling | ⬜ 待开始 | Tool Use, JSON Schema, 工具调用 |
+| 5 | 异步 + 流式输出 | ⬜ 待开始 | asyncio, SSE, 打字机效果 |
+| 6 | ReAct Agent 循环 | ⬜ 待开始 | Think→Act→Observe, 自主决策 |
+| 7 | 多工具 Agent | ⬜ 待开始 | 工具编排, 错误恢复, 上下文管理 |
+| 8 | RAG + 长期记忆 | ⬜ 待开始 | 向量检索, Embedding, 记忆系统 |
 
 ---
 
-#### 细节注意
-- 要给网络请求加 `try...except` “保护壳”
-- Python 的函数回调方式跟 Lua 不太一样
-- 在 create response 的时候，要注意 stream 这个参数的设置，用来控制流式输出模式的开关（详见下文的例子）
+## 环境：Python + uv
 
-### Temperature (0 vs 2) 对比
-- temperature 是控制模型“随机性”的开关
-  - 温度 = 0 (严谨模式)：
-    - 原理：模型每次都只选那个概率最大的词（贪婪搜索）。
-    - 表现：回答非常稳定。如果你运行 10 次，结果几乎一模一样。适合写代码、算算术、事实问答。
-  - 温度 = 2 (放飞模式)：
-    - 原理：模型会更有可能选择那些概率较低的词。
-    - 表现：回答极具文学性、意想不到甚至可能“胡言乱语”。每次运行结果都会变。适合写诗、起名、脑暴。
+macOS 下 Python 包管理容易陷入路径地狱（系统 Python / pyenv / venv 混在一起），用 `uv` 解决：
 
-  ```python
-  response = client.chat.completions.create(
-              model="deepseek-chat",
-              messages=[
-                  {"role": "system", "content":"你是我的一个助手"},
-                  {"role": "user", "content":prompt},
-              ],
-              temperature=temperature or 0 #控制模型“随机性”
-          )
-  ```
+```bash
+brew install uv
+uv init my_project        # 项目初始化
+uv add python-dotenv      # 添加依赖
+uv add openai
+uv run python main.py     # 直接运行，环境自动隔离
+```
 
-  - 同样是“简短描述一只小猫“，输出效果对比如下：
-    - temperature = 0：“毛茸茸的小团子，琥珀色的眼睛亮晶晶的，尾巴轻轻摇晃，偶尔发出软糯的“喵”声。“
-    - temperature = 2 时出现了幻觉：“一球洁白秋纺垂地瘫卧开漾尖角小羽绒把阳锁在外蹲时太阳恰不耀肉膜托出明悉朝蜇缩动的耳耳暖昧没滤过日光“
+### API Key 安全惯例
+
+- 用 `python-dotenv` 从 `.env` 加载敏感信息
+- `.env` 加入 `.gitignore`，`.env.example` 作为模板提交
+
+---
+
+## 项目 1：LLM API 入门
+
+**代码：** [projects/llm-api-basics/](./projects/llm-api-basics/)
+
+### 学到了什么
+
+**API 调用基础**
+- DeepSeek 兼容 OpenAI SDK，改 `base_url` 即可切换服务商
+- 网络请求必须包 `try...except`，API 可能超时或返回异常
+
+**响应解析**
+
+| 字段 | 含义 |
+|------|------|
+| `response.choices[0].message.content` | AI 回复的文本 |
+| `response.usage.total_tokens` | 总 Token 消耗 |
+| `response.usage.prompt_cache_hit_tokens` | 命中缓存的 Token 数（DeepSeek 特色，省钱） |
+| `response.choices[0].finish_reason` | `stop` 正常结束 / `length` 超长截断 |
+
+调试时用 `response.model_dump_json(indent=2)` 比 `print(response)` 清晰得多。
+
+**Temperature — 控制随机性**
+
+```python
+response = client.chat.completions.create(..., temperature=t)
+```
+
+- `t = 0`：贪婪搜索，每次选概率最高的词。结果稳定，适合代码、事实问答
+- `t = 2`：可能选低概率词，结果每次不同。适合写诗、脑暴，但容易产生幻觉
+
+同一个 prompt「简短描述一只小猫」：`t=0` 返回正常描述，`t=2` 返回乱码。
+
+**LLM 原理要点**
+- 本质是 Next Token Prediction：给定上文，预测下一个字（Token）的概率分布
+- 训练三部曲：预训练（海量语料）→ 指令微调（学会对话格式）→ RLHF（学会好坏）
+- 幻觉不可避免，对关键事实必须人工复核
+
+**Prompt 技巧**
+
+| 技巧 | 做法 |
+|------|------|
+| Zero-shot | 直接下指令，不给例子 |
+| Few-shot | 给 2-3 个示范案例，格式即约定 |
+| Chain of Thought | 让模型先写出推导过程，再给答案 |
+
+**JSON 模式 — Agent 的基础**
+
+Agent 需要可解析的确定输出（调哪个函数、传什么参数），不能依赖自然语言。两种方式：
+- **软约束**：System Prompt 里要求「只输出 JSON」，但模型偶尔会在前面加废话
+- **强约束**：`response_format={'type': 'json_object'}`，保证输出合法 JSON
+
+```python
+response = client.chat.completions.create(
+    ..., response_format={'type': 'json_object'}
+)
+```
+
+---
+
+## 项目 2：FastAPI 基础
+
+**代码：** [projects/fastapi-basics/](./projects/fastapi-basics/)
+
+### 学到了什么
+
+Agent 最终要以 HTTP 服务的形式暴露给用户，FastAPI 是目前最流行的 Python 异步 Web 框架。
+
+**路由与请求方法**
+- `@app.get()` / `@app.post()` 装饰器定义端点
+- 路径参数 `/{name}` 和查询参数 `?limit=10&min_mood=50` 的区别
+- FastAPI 自带 Swagger UI（`/docs`）和 ReDoc（`/redoc`），无需额外配置
+
+**Pydantic 请求校验**
+```python
+class Content(BaseModel):
+    text: str = Field(..., min_length=5)
+```
+- FastAPI 自动解析 JSON 请求体 → Python 对象
+- 校验失败自动返回 422，不执行业务逻辑
+- `json_schema_extra` 提供示例值，直接显示在 Swagger 里
+
+**三种接口模式演示**
+
+| 接口 | 类型 | 演示要点 |
+|------|------|----------|
+| `GET /` | 无参数 | 最简单的欢迎页 |
+| `GET /hello/{name}` | 路径参数 | URL 嵌入动态值 |
+| `GET /history?limit=&min_mood=` | 查询参数 | `?key=value` 可选参数 |
+| `POST /analyze` | 请求体 | JSON body + Pydantic 校验 |
+
+---
+
+## 项目 3：Apple Notes 排版 Agent
+
+**代码：** [projects/apple-notes-agent/](./projects/apple-notes-agent/)
+
+### 学到了什么
+
+这是第一个「LLM + Web 框架」组合的实战项目，已部署到云服务器。
+
+**系统架构**
+
+```
+iPhone Shortcut → POST /api/v1/format → FastAPI → DeepSeek-V3 → Markdown  → Apple Notes
+                                         (Pydantic)   (AsyncOpenAI)   (纯文本)
+```
+
+**Prompt 工程设计**
+- 18 行 system prompt 精确控制输出格式
+- 强制规则：纯 Markdown、不输出代码块包装、不输出"好的，为您整理如下"
+- `temperature=0.3` 保证格式稳定
+- 保底后处理：正则替换清理异常换行
+
+**项目结构分拆**
+```
+apple-notes-agent/
+├── main.py              # FastAPI 入口，单端点
+├── core/config.py       # pydantic-settings 读取 .env
+├── models/schemas.py    # 请求体模型
+└── services/llm_service.py  # LLM 调用 + system prompt
+```
+三个职责分离：配置 / 数据契约 / AI 逻辑 — 这是 Agent 项目的标准骨架。
+
+**Docker 部署**
+- 多阶段构建（uv 官方镜像 → python:3.11-slim）
+- 内存限制 256MB（保护同一台服务器的 Minecraft）
+- `deploy.sh` 一键：构建 → 打包 → scp 上传 → 远程启动 → 健康检查
+
+---
+
+## 踩坑记录
+
+- `stream=True` 后 response 的取法完全不同，不能用 `.choices[0].message.content`
+- `model_dump_json` 是 Pydantic 模型的方法，不是 dict 的 — 只对 response 对象有效

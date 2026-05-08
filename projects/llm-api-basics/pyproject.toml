@@ -1,11 +1,10 @@
 [project]
-name = "agent-learning"
+name = "llm-api-basics"
 version = "0.1.0"
-description = "Add your description here"
+description = "LLM API 调用入门：DeepSeek 问答、参数控制、JSON 模式、Function Calling"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
     "openai>=2.32.0",
-    "pre-commit>=4.5.1",
     "python-dotenv>=1.2.2",
 ]

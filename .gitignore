@@ -1,11 +1,13 @@
-# Python-generated files
+# macOS
+.DS_Store
+
+# Python (applies to all sub-projects)
 __pycache__/
 *.py[oc]
-build/
-dist/
-wheels/
-*.egg-info
-
-# Virtual environments
 .venv
 .env
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
