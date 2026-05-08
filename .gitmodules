@@ -1,6 +1,9 @@
 [submodule "projects/apple-notes-agent"]
 	path = projects/apple-notes-agent
 	url = https://github.com/1119204640/apple-notes-agent.git
-[submodule "projects/fastapi-basics"]
-	path = projects/fastapi-basics
-	url = https://github.com/1119204640/fastapi-learning.git
+[submodule "projects/hello-llm-api"]
+	path = projects/hello-llm-api
+	url = https://github.com/1119204640/hello-llm-api.git
+[submodule "projects/hello-fastapi"]
+	path = projects/hello-fastapi
+	url = https://github.com/1119204640/hello-fastapi.git

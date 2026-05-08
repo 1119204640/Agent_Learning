@@ -8,8 +8,8 @@
 
 | # | 项目 | 状态 | 关键词 |
 |---|------|------|--------|
-| 1 | [LLM API 入门](./projects/llm-api-basics/) | 🚧 进行中 | DeepSeek, OpenAI SDK, Temperature, Token |
-| 2 | [FastAPI 基础](https://github.com/1119204640/fastapi-learning) | ✅ 完成 | 路由, Pydantic 校验, Swagger 文档 |
+| 1 | [LLM API 入门](https://github.com/1119204640/hello-llm-api) | 🚧 进行中 | DeepSeek, OpenAI SDK, Temperature, Token |
+| 2 | [FastAPI 基础](https://github.com/1119204640/hello-fastapi) | ✅ 完成 | 路由, Pydantic 校验, Swagger 文档 |
 | 3 | [Apple Notes 排版 Agent](https://github.com/1119204640/apple-notes-agent) | ✅ 完成 | FastAPI + LLM 实战, Docker 部署, Prompt 工程 |
 
 ### 进阶阶段：Agent 核心能力
@@ -45,7 +45,7 @@ uv run python main.py     # 直接运行，环境自动隔离
 
 ## 项目 1：LLM API 入门
 
-**代码：** [projects/llm-api-basics/](./projects/llm-api-basics/)
+**代码：** [hello-llm-api](https://github.com/1119204640/hello-llm-api)
 
 ### 学到了什么
 
@@ -104,7 +104,7 @@ response = client.chat.completions.create(
 
 ## 项目 2：FastAPI 基础
 
-**代码：** [fastapi-learning](https://github.com/1119204640/fastapi-learning)
+**代码：** [hello-fastapi](https://github.com/1119204640/hello-fastapi)
 
 ### 学到了什么
 
