@@ -9,8 +9,8 @@
 | # | 项目 | 状态 | 关键词 |
 |---|------|------|--------|
 | 1 | [LLM API 入门](./projects/llm-api-basics/) | 🚧 进行中 | DeepSeek, OpenAI SDK, Temperature, Token |
-| 2 | [FastAPI 基础](./projects/fastapi-basics/) | ✅ 完成 | 路由, Pydantic 校验, Swagger 文档 |
-| 3 | [Apple Notes 排版 Agent](./projects/apple-notes-agent/) | ✅ 完成 | FastAPI + LLM 实战, Docker 部署, Prompt 工程 |
+| 2 | [FastAPI 基础](https://github.com/1119204640/fastapi-learning) | ✅ 完成 | 路由, Pydantic 校验, Swagger 文档 |
+| 3 | [Apple Notes 排版 Agent](https://github.com/1119204640/apple-notes-agent) | ✅ 完成 | FastAPI + LLM 实战, Docker 部署, Prompt 工程 |
 
 ### 进阶阶段：Agent 核心能力
 
@@ -104,7 +104,7 @@ response = client.chat.completions.create(
 
 ## 项目 2：FastAPI 基础
 
-**代码：** [projects/fastapi-basics/](./projects/fastapi-basics/)
+**代码：** [fastapi-learning](https://github.com/1119204640/fastapi-learning)
 
 ### 学到了什么
 
@@ -137,7 +137,7 @@ class Content(BaseModel):
 
 ## 项目 3：Apple Notes 排版 Agent
 
-**代码：** [projects/apple-notes-agent/](./projects/apple-notes-agent/)
+**代码：** [apple-notes-agent](https://github.com/1119204640/apple-notes-agent)
 
 ### 学到了什么
 
